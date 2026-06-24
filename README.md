@@ -7,7 +7,7 @@ Webová kalkulačka pre rýchly výpočet nákladov, predajnej ceny a hrubého z
 - Pozemok — bez DPH
 - Hrubý zisk zvlášť za holodom a zvlášť za pozemok
 - Súhrnná tabuľka projektu
-- Plne offline, jeden HTML súbor, žiadne závislosti
+- Plne offline, branding Alpha Reality
 
 ---
 
@@ -21,7 +21,7 @@ Webová kalkulačka pre rýchly výpočet nákladov, predajnej ceny a hrubého z
 
 ### 2. Nahraj súbory
 1. V repozitári klikni **uploading an existing file**
-2. Pretiahni súbor `index.html` (a tento `README.md`)
+2. Pretiahni VŠETKY tri súbory: `index.html`, `logo.png` a `README.md`
 3. Klikni **Commit changes**
 
 ### 3. Zapni GitHub Pages
@@ -39,7 +39,7 @@ https://TVOJEMENO.github.io/kalkulacka/
 Ak chceš URL typu `kalkulacka.alphareality.sk`:
 
 1. V **Settings → Pages** zadaj **Custom domain**: `kalkulacka.alphareality.sk`
-2. U poskytovateľa domény (kde máš alphareality.sk) pridaj DNS záznam:
+2. U poskytovateľa domény pridaj DNS záznam:
    - Type: **CNAME**
    - Name: `kalkulacka`
    - Value: `TVOJEMENO.github.io`
@@ -48,15 +48,17 @@ Ak chceš URL typu `kalkulacka.alphareality.sk`:
 
 ---
 
+## Súbory v projekte
+
+- `index.html` — celá kalkulačka (HTML + CSS + JS v jednom súbore)
+- `logo.png` — logo Alpha Reality v hlavičke
+- `README.md` — tento návod
+- `.gitignore` — ignorované systémové súbory
+
 ## Úpravy
 
-Celá kalkulačka je v jednom súbore `index.html`. Ak chceš zmeniť:
-
-- **Sadzbu DPH** — v `<script>` zmeň `const VAT = 0.23;`
-- **Farby** — v `:root` na začiatku `<style>`:
-  - `--gold: #DAB967;` — Alpha Gold
-  - `--onyx: #141414;` — Onyx
-  - `--cream: #F2EFE9;` — Warm Cream
+- **Sadzba DPH** — v `<script>` zmeň `const VAT = 0.23;`
+- **Farby** — v `:root` na začiatku `<style>` (`--gold`, `--onyx`, `--cream`)
 - **Predvolené hodnoty** — atribút `value=""` pri jednotlivých `<input>`
 
 ---
