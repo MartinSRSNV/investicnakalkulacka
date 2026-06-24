@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulačka projektu – Alpha Reality</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #DAB967;
+    --gold-dark: #B89947;
+    --onyx: #141414;
+    --onyx-soft: #2A2A2A;
+    --cream: #F2EFE9;
+    --text-muted: #6B6B6B;
+    --border: rgba(20, 20, 20, 0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--onyx);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+  header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .mark { width: 5px; height: 48px; background: var(--gold); border-radius: 3px; }
+  .brand { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; letter-spacing: 0.02em; color: var(--onyx); }
+  .tagline { font-size: 13px; color: var(--text-muted); margin-top: 2px; letter-spacing: 0.02em; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 600;
+    letter-spacing: 0.02em; color: var(--onyx);
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--gold);
+    display: inline-block;
+  }
+  /* Shared parameter bar */
+  .params-bar {
+    background: var(--onyx);
+    color: var(--cream);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .params-bar-label {
+    font-size: 11px;
+    color: rgba(242, 239, 233, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    flex: 1;
+    min-width: 180px;
+  }
+  .params-bar input {
+    padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px;
+    border: 1px solid rgba(218, 185, 103, 0.3);
+    border-radius: 6px;
+    background: var(--onyx-soft);
+    color: var(--cream);
+    width: 120px; text-align: right;
+    transition: border-color 0.15s;
+  }
+  .params-bar input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(218, 185, 103, 0.2);
+  }
+  .params-bar-unit { color: var(--gold); font-size: 14px; font-weight: 500; }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(20, 20, 20, 0.04);
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 500;
+    margin: 0 0 1.25rem;
+    color: var(--onyx);
+    display: flex; align-items: center; gap: 10px;
+    letter-spacing: 0.02em;
+  }
+  .dot { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; }
+  .input-row {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .input-row label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 500;
+    flex: 1; min-width: 160px;
+  }
+  .input-row input {
+    padding: 10px 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--cream); color: var(--onyx);
+    width: 140px; text-align: right;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .input-row input:focus {
+    outline: none; border-color: var(--gold); background: #fff;
+    box-shadow: 0 0 0 3px rgba(218, 185, 103, 0.15);
+  }
+  .results { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .results.single { grid-template-columns: 1fr; }
+  .result { background: var(--cream); border-radius: 8px; padding: 14px 16px; }
+  .result.vat { border-left: 3px solid var(--gold); }
+  .result.single-result { border-left: 3px solid var(--gold); }
+  .result-label {
+    font-size: 11px; color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;
+  }
+  .result-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; font-weight: 500;
+    color: var(--onyx); line-height: 1.1;
+  }
+  .result.vat .result-value,
+  .result.single-result .result-value { color: var(--gold-dark); }
+
+  .profit {
+    background: var(--onyx);
+    color: var(--cream);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+  }
+  .profit-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 500;
+    margin: 0 0 1rem;
+    display: flex; align-items: center; gap: 10px;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+  }
+  .profit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .profit-grid.single { grid-template-columns: 1fr; }
+  .profit-item {
+    background: var(--onyx-soft);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--gold);
+  }
+  .profit-label {
+    font-size: 11px; color: rgba(242, 239, 233, 0.6);
+    margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;
+  }
+  .profit-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; font-weight: 600;
+    color: var(--gold); line-height: 1.1;
+  }
+  .profit-value.negative { color: #E89D9D; }
+
+  .summary-wrap {
+    margin-top: 2.5rem;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(20, 20, 20, 0.04);
+  }
+  .summary-header {
+    background: var(--onyx);
+    color: var(--cream);
+    padding: 1.25rem 1.5rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .summary-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 500;
+    margin: 0; color: var(--gold);
+    letter-spacing: 0.02em;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th, td {
+    padding: 14px 1.5rem;
+    text-align: right;
+    font-size: 15px;
+    border-bottom: 1px solid var(--border);
+  }
+  th:first-child, td:first-child { text-align: left; }
+  thead th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: var(--cream);
+    padding-top: 12px; padding-bottom: 12px;
+  }
+  tbody td:first-child {
+    color: var(--text-muted);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 500;
+  }
+  tbody td {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--onyx);
+  }
+  tbody tr.total { background: var(--cream); }
+  tbody tr.total td {
+    font-weight: 600;
+    color: var(--onyx);
+    border-bottom: none;
+    padding-top: 18px; padding-bottom: 18px;
+  }
+  tbody tr.total td:first-child {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  tbody tr.total td.profit-cell {
+    color: var(--gold-dark);
+    font-size: 20px;
+  }
+  tbody tr.total td.profit-cell.negative { color: #C04545; }
+
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+  footer a { color: var(--gold-dark); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .container { padding: 1rem; }
+    .brand { font-size: 22px; }
+    .results, .profit-grid { grid-template-columns: 1fr; }
+    .result-value { font-size: 20px; }
+    .profit-value { font-size: 22px; }
+    .input-row input { width: 100%; }
+    .params-bar input { width: 100%; }
+    th, td { padding: 10px 0.75rem; font-size: 13px; }
+    tbody td { font-size: 14px; }
+    tbody tr.total td.profit-cell { font-size: 16px; }
+  }
+  @media print {
+    body { background: #fff; }
+    .card, .profit, .summary-wrap { box-shadow: none; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="mark"></div>
+    <div>
+      <div class="brand">Alpha Reality</div>
+      <div class="tagline">Kalkulačka projektu — holodom + pozemok</div>
+    </div>
+  </header>
+
+  <h2 class="section-title">Holodom</h2>
+
+  <div class="params-bar">
+    <span class="params-bar-label">Zastavaná plocha</span>
+    <input type="number" id="area-h" value="120" min="0" step="0.1">
+    <span class="params-bar-unit">m²</span>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title"><span class="dot"></span>Nákladová cena</h3>
+    <div class="input-row">
+      <label>Cena za m² s DPH (€)</label>
+      <input type="number" id="cost-h-price" value="800" min="0" step="1">
+    </div>
+    <div class="results">
+      <div class="result">
+        <div class="result-label">Cena spolu bez DPH</div>
+        <div class="result-value" id="cost-h-novat">—</div>
+      </div>
+      <div class="result vat">
+        <div class="result-label">Cena spolu s DPH (23 %)</div>
+        <div class="result-value" id="cost-h-vat">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title"><span class="dot"></span>Predajná cena</h3>
+    <div class="input-row">
+      <label>Cena za m² s DPH (€)</label>
+      <input type="number" id="sale-h-price" value="1200" min="0" step="1">
+    </div>
+    <div class="results">
+      <div class="result">
+        <div class="result-label">Cena spolu bez DPH</div>
+        <div class="result-value" id="sale-h-novat">—</div>
+      </div>
+      <div class="result vat">
+        <div class="result-label">Cena spolu s DPH (23 %)</div>
+        <div class="result-value" id="sale-h-vat">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profit">
+    <h3 class="profit-title"><span class="dot"></span>Hrubý zisk — holodom</h3>
+    <div class="profit-grid">
+      <div class="profit-item">
+        <div class="profit-label">Hrubý zisk bez DPH</div>
+        <div class="profit-value" id="profit-h-novat">—</div>
+      </div>
+      <div class="profit-item">
+        <div class="profit-label">Hrubý zisk s DPH (23 %)</div>
+        <div class="profit-value" id="profit-h-vat">—</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Pozemok</h2>
+
+  <div class="params-bar">
+    <span class="params-bar-label">Výmera pozemku</span>
+    <input type="number" id="area-p" value="600" min="0" step="0.1">
+    <span class="params-bar-unit">m²</span>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title"><span class="dot"></span>Nákup pozemku</h3>
+    <div class="input-row">
+      <label>Cena za m² (€)</label>
+      <input type="number" id="cost-p-price" value="40" min="0" step="0.1">
+    </div>
+    <div class="results single">
+      <div class="result single-result">
+        <div class="result-label">Cena spolu</div>
+        <div class="result-value" id="cost-p-total">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title"><span class="dot"></span>Predaj pozemku</h3>
+    <div class="input-row">
+      <label>Cena za m² (€)</label>
+      <input type="number" id="sale-p-price" value="80" min="0" step="0.1">
+    </div>
+    <div class="results single">
+      <div class="result single-result">
+        <div class="result-label">Cena spolu</div>
+        <div class="result-value" id="sale-p-total">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profit">
+    <h3 class="profit-title"><span class="dot"></span>Hrubý zisk — pozemok</h3>
+    <div class="profit-grid single">
+      <div class="profit-item">
+        <div class="profit-label">Hrubý zisk</div>
+        <div class="profit-value" id="profit-p">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-wrap">
+    <div class="summary-header">
+      <span class="dot"></span>
+      <h3>Súhrn projektu</h3>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Položka</th>
+          <th>Náklad</th>
+          <th>Predaj</th>
+          <th>Hrubý zisk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Holodom — bez DPH</td>
+          <td id="s-h-c-novat">—</td>
+          <td id="s-h-s-novat">—</td>
+          <td id="s-h-p-novat">—</td>
+        </tr>
+        <tr>
+          <td>Holodom — s DPH</td>
+          <td id="s-h-c-vat">—</td>
+          <td id="s-h-s-vat">—</td>
+          <td id="s-h-p-vat">—</td>
+        </tr>
+        <tr>
+          <td>Pozemok</td>
+          <td id="s-p-c">—</td>
+          <td id="s-p-s">—</td>
+          <td id="s-p-p">—</td>
+        </tr>
+        <tr class="total">
+          <td>Spolu bez DPH</td>
+          <td id="s-t-c-novat">—</td>
+          <td id="s-t-s-novat">—</td>
+          <td class="profit-cell" id="s-t-p-novat">—</td>
+        </tr>
+        <tr class="total">
+          <td>Spolu s DPH</td>
+          <td id="s-t-c-vat">—</td>
+          <td id="s-t-s-vat">—</td>
+          <td class="profit-cell" id="s-t-p-vat">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    Alpha Reality s.r.o. &middot; <a href="https://www.alphareality.sk" target="_blank">alphareality.sk</a>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  const VAT = 0.23;
+  const fmt = new Intl.NumberFormat('sk-SK', { maximumFractionDigits: 0 });
+
+  function val(id) { return parseFloat(document.getElementById(id).value) || 0; }
+  function set(id, v) {
+    document.getElementById(id).textContent = fmt.format(Math.round(v)) + ' €';
+  }
+  function setProfit(id, v) {
+    const el = document.getElementById(id);
+    el.textContent = fmt.format(Math.round(v)) + ' €';
+    el.classList.toggle('negative', v < 0);
+  }
+
+  function calc() {
+    const areaH = val('area-h');
+    const areaP = val('area-p');
+
+    // Holodom — input is WITH VAT, shared area
+    const costHvat = val('cost-h-price') * areaH;
+    const costHnovat = costHvat / (1 + VAT);
+    const saleHvat = val('sale-h-price') * areaH;
+    const saleHnovat = saleHvat / (1 + VAT);
+
+    // Pozemok — no VAT, shared area
+    const costP = val('cost-p-price') * areaP;
+    const saleP = val('sale-p-price') * areaP;
+
+    set('cost-h-novat', costHnovat);
+    set('cost-h-vat', costHvat);
+    set('sale-h-novat', saleHnovat);
+    set('sale-h-vat', saleHvat);
+    set('cost-p-total', costP);
+    set('sale-p-total', saleP);
+
+    const profHnovat = saleHnovat - costHnovat;
+    const profHvat = saleHvat - costHvat;
+    setProfit('profit-h-novat', profHnovat);
+    setProfit('profit-h-vat', profHvat);
+
+    const profP = saleP - costP;
+    setProfit('profit-p', profP);
+
+    set('s-h-c-novat', costHnovat);
+    set('s-h-s-novat', saleHnovat);
+    set('s-h-p-novat', profHnovat);
+    set('s-h-c-vat', costHvat);
+    set('s-h-s-vat', saleHvat);
+    set('s-h-p-vat', profHvat);
+    set('s-p-c', costP);
+    set('s-p-s', saleP);
+    set('s-p-p', profP);
+
+    const totCnovat = costHnovat + costP;
+    const totSnovat = saleHnovat + saleP;
+    const totPnovat = totSnovat - totCnovat;
+    const totCvat = costHvat + costP;
+    const totSvat = saleHvat + saleP;
+    const totPvat = totSvat - totCvat;
+
+    set('s-t-c-novat', totCnovat);
+    set('s-t-s-novat', totSnovat);
+    set('s-t-p-novat', totPnovat);
+    set('s-t-c-vat', totCvat);
+    set('s-t-s-vat', totSvat);
+    set('s-t-p-vat', totPvat);
+
+    document.getElementById('s-t-p-novat').classList.toggle('negative', totPnovat < 0);
+    document.getElementById('s-t-p-vat').classList.toggle('negative', totPvat < 0);
+  }
+
+  document.querySelectorAll('input[type="number"]').forEach(i => i.addEventListener('input', calc));
+  calc();
+})();
+</script>
+</body>
+</html>
